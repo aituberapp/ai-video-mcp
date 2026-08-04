@@ -8,7 +8,7 @@
       "path-to-regexp": "8.4.0"
     }
   },
-  "description": "AITuber MCP server, hosted at https://mcp.aituber.app. Create AI videos with narration, visuals, and captions for YouTube Shorts, TikTok, and Instagram Reels, and publish them, straight from Claude Desktop, Claude Code, ChatGPT, Codex, Cursor, or OpenClaw.",
+  "description": "AITuber MCP server, hosted at https://mcp.aituber.app. Create AI videos with narration, visuals, and captions, then publish to YouTube, TikTok, Instagram, Facebook, Threads, and X from Claude Desktop, Claude Code, ChatGPT, Codex, Cursor, or OpenClaw.",
   "license": "MIT",
   "type": "module",
   "bin": {

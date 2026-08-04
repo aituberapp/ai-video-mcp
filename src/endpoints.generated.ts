@@ -1019,13 +1019,13 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "GET",
     "path": "/channels",
     "summary": "List connected social media channels",
-    "description": "Returns all connected social media channels (YouTube, TikTok, and Instagram) for your organization.\n\n**Note:** Channels must be connected via the AITuber dashboard (OAuth flow). This endpoint is read-only; use it to discover channel IDs for publishing.\n\n**After listing channels:**\nUse the channel `id` values when calling `POST /publications` to publish a video.",
+    "description": "Returns all connected social media channels (YouTube, TikTok, Instagram, Facebook, Threads, and X) for your organization.\n\n**Note:** Channels must be connected via the AITuber dashboard (OAuth flow). This endpoint is read-only; use it to discover channel IDs for publishing.\n\n**After listing channels:**\nUse the channel `id` values when calling `POST /publications` to publish a video.",
     "auth": true,
     "params": [
       {
         "name": "platform",
         "in": "query",
-        "type": "`youtube` \\| `tiktok` \\| `instagram` \\| `all`",
+        "type": "`youtube` \\| `tiktok` \\| `instagram` \\| `facebook` \\| `threads` \\| `x` \\| `all`",
         "description": "Filter by platform. Use \"all\" or omit to list all connected channels."
       }
     ]
@@ -1034,7 +1034,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "POST",
     "path": "/publications",
     "summary": "Publish a video to social media",
-    "description": "Publishes a completed video to one or more connected social media channels (YouTube, TikTok, and Instagram).\n\n**Prerequisites:**\n1. Connect channels via the AITuber dashboard (cannot be done via API).\n2. Video must have `status: completed` (check via `GET /videos/{id}`).\n3. Active paid subscription with the Publish feature (Creator plan or higher).\n\n**How it works:**\n1. If the video has not been exported to MP4 yet, an export is automatically started.\n2. Once the MP4 is ready, it is uploaded to each selected platform.\n3. Each channel gets its own publication with independent status tracking.\n\n**After publishing:**\nPoll `GET /publications/{publicationId}` for each publication ID until it reaches a terminal state.\nImmediate publishes typically end in `published` or `failed`. Scheduled publishes may enter `scheduled` first, depending on platform behavior.\nTypical time: 2-10 minutes (longer if export is needed first).\n\n**Platform-specific settings:**\nEach entry in the `channels` array can include platform-specific metadata. Only include settings relevant to the channel's platform.\n\n**Cost:** Free. Publishing does not consume credits.",
+    "description": "Publishes a completed video to one or more connected social media channels (YouTube, TikTok, Instagram, Facebook, Threads, and X).\n\n**Prerequisites:**\n1. Connect channels via the AITuber dashboard (cannot be done via API).\n2. Video must have `status: completed` (check via `GET /videos/{id}`).\n3. Active paid subscription with the Publish feature (Creator plan or higher).\n\n**How it works:**\n1. If the video has not been exported to MP4 yet, an export is automatically started.\n2. Once the MP4 is ready, it is uploaded to each selected platform.\n3. Each channel gets its own publication with independent status tracking.\n\n**After publishing:**\nPoll `GET /publications/{publicationId}` for each publication ID until it reaches a terminal state.\nImmediate publishes typically end in `published` or `failed`. Scheduled publishes may enter `scheduled` first, depending on platform behavior.\nTypical time: 2-10 minutes (longer if export is needed first).\n\n**Platform-specific settings:**\nEach entry in the `channels` array can include platform-specific metadata. Only include settings relevant to the channel's platform.\n\n**Cost:** Free. Publishing does not consume credits.",
     "auth": true,
     "params": [
       {
@@ -1056,14 +1056,21 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "string",
         "required": false,
-        "description": "Description/caption shared across all platforms. Used as YouTube description and Instagram caption. Max 2200 characters."
+        "description": "Description or long caption used for YouTube, TikTok, Instagram, and Facebook. Max 2200 characters."
+      },
+      {
+        "name": "shortCaption",
+        "in": "body",
+        "type": "string",
+        "required": false,
+        "description": "Short caption shared by X and Threads. It is kept within X's standard weighted 280-character limit. Defaults to `caption` when omitted."
       },
       {
         "name": "addMadeWithCaption",
         "in": "body",
         "type": "boolean",
         "required": false,
-        "description": "Add \"Made with AITuber, the AI video generator: aituber.app\" at the end of the caption. Default: true. The caption is shortened if needed so the total stays within 2200 characters."
+        "description": "Add \"Made with AITuber, the AI video generator: aituber.app\" at the end of each caption. Default: true. Each caption is shortened when needed to stay within its platform limit."
       },
       {
         "name": "publishNow",

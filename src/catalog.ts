@@ -105,7 +105,7 @@ Notes: browse your library with GET /music (generated songs + uploaded tracks). 
 
   "publishing": `Publishing flow for AITuber videos:
 
-1. **Connect a channel** via the AITuber dashboard (OAuth). Supported for publishing: YouTube, TikTok, Instagram.
+1. **Connect a channel** via the AITuber dashboard (OAuth). Supported for publishing: YouTube, TikTok, Instagram, Facebook, Threads, X.
 2. **Generate a video** (POST /videos/generate) and wait until status is "completed".
 3. **List your channels** (GET /channels) to find channel IDs.
 4. **Publish** (POST /publications) with the videoId and per-channel settings.
@@ -119,6 +119,8 @@ Each platform accepts different settings:
 - **YouTube:** title, tags, categoryId, madeForKids
 - **TikTok:** tiktokPrivacyStatus, allowComment, allowDuet, allowStitch, isAiGenerated
 - **Instagram:** instagramPlacement (reels/stories/timeline), shareToFeed
+- **Facebook:** uses the long caption and video with no extra settings
+- **Threads and X:** share shortCaption, kept within X's weighted 280-character limit
 
 Scheduled publications can be canceled before they go live with DELETE /publications/{publicationId}.`,
 };

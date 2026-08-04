@@ -258,7 +258,7 @@ function buildMcpServer(
   // Tool 1: Search the API
   server.tool(
     "search_api",
-    "Search the AITuber API to find endpoints for creating AI videos, checking credits, exporting to MP4, publishing to YouTube/TikTok/Instagram, and more. Returns matching endpoints with parameters and examples. Use this before execute_api to find the right endpoint.",
+    "Search the AITuber API to find endpoints for creating AI videos, checking credits, exporting to MP4, publishing to social media, and more. Returns matching endpoints with parameters and examples. Use this before execute_api to find the right endpoint.",
     {
       query: z
         .string()

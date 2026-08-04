@@ -90,7 +90,7 @@ API keys are long-lived and revocable from the dashboard, so they fit unattended
 - **Video templates** - skeleton X-ray style, character-driven stories
 - **Multiple media types** - AI-generated images, AI video clips, or real stock footage
 - **Music videos** - generate a song from a prompt (or upload your own track) and turn it into a music video with AI visuals and synced lyric captions
-- **YouTube, TikTok, and Instagram** - publish directly to your connected channels
+- **Six publishing platforms** - publish to YouTube, TikTok, Instagram, Facebook, Threads, and X
 - **Export to MP4** - render and download the final video
 - **Check credits and plan** - monitor usage before generating
 
@@ -106,7 +106,7 @@ Ask your AI assistant:
 
 > "Export my latest video to MP4 and give me the download link"
 
-> "List my connected channels and publish my finished video to YouTube, TikTok, and Instagram"
+> "List my connected channels and publish my finished video to Threads and X"
 
 ## How it works
 
@@ -194,7 +194,7 @@ Publishing requires channels to already be connected through the AITuber dashboa
 | `GET /subscription` | Check your plan, credits, and billing info |
 | `POST /exports` | Start rendering a video to MP4 |
 | `GET /exports/download` | Get a temporary download URL for the MP4 |
-| `GET /channels` | List connected YouTube, TikTok, and Instagram channels |
+| `GET /channels` | List connected YouTube, TikTok, Instagram, Facebook, Threads, and X channels |
 | `POST /publications` | Publish a completed video to one or more connected channels |
 | `GET /publications/{publicationId}` | Check publication status after publishing |
 | `DELETE /publications/{publicationId}` | Cancel a scheduled publication before it goes live |

@@ -82,9 +82,10 @@ export const EXAMPLES: Record<string, EndpointExamples> = {
           },
         ],
       },
-      "Multi-platform publish (YouTube + TikTok + Instagram)": {
+      "Multi-platform publish (6 platforms)": {
         videoId: "your-video-id",
         caption: "New video just dropped!",
+        shortCaption: "New video just dropped. What do you think?",
         channels: [
           {
             channelId: "youtube-channel-id",
@@ -100,6 +101,9 @@ export const EXAMPLES: Record<string, EndpointExamples> = {
             channelId: "instagram-channel-id",
             instagramPlacement: "reels",
           },
+          { channelId: "facebook-channel-id" },
+          { channelId: "threads-channel-id" },
+          { channelId: "x-channel-id" },
         ],
       },
       "Schedule for later": {
