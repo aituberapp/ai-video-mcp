@@ -212,7 +212,7 @@ Publishing requires channels to already be connected through the AITuber dashboa
 
 ## Under the hood
 
-The server is a stateless Cloudflare Worker (`src/remote.ts`, source in this repo). It verifies your AITuber sign-in or API key, exposes the `search_api` and `execute_api` tools, and forwards each call to the AITuber API with your own credential. Nothing is stored, there are no sessions, and there are no analytics. The endpoint catalog is generated from the API's OpenAPI definition, so the tools always match the live API. Dev and deploy notes: [CONTRIBUTING.md](./CONTRIBUTING.md).
+The server is a stateless Cloudflare Worker (`src/remote.ts`, source in this repo). It verifies your AITuber sign-in or API key, exposes the `search_api` and `execute_api` tools, and forwards each call to the AITuber API with your own credential. Nothing is stored and there are no server-side sessions. PostHog MCP Analytics records tool names, client details, timing, and success or failure. Tool arguments and responses are removed before analytics events are sent. The endpoint catalog is generated from the API's OpenAPI definition, so the tools always match the live API. Dev and deploy notes: [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Links
 

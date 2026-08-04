@@ -19,7 +19,9 @@ custom_domain = true
 # Decodes to the frontend API domain clerk.aituber.app.
 CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuYWl0dWJlci5hcHAk"
 AITUBER_API_BASE_URL = "https://app.aituber.app/api/v1"
+POSTHOG_HOST = "https://eu.i.posthog.com"
 
-# CLERK_SECRET_KEY is a secret, not a var. Set it with:
+# CLERK_SECRET_KEY and POSTHOG_API_KEY are secrets, not vars. Set with:
 #   wrangler secret put CLERK_SECRET_KEY
+#   wrangler secret put POSTHOG_API_KEY
 # For local dev, put it in mcp/.dev.vars (gitignored).
