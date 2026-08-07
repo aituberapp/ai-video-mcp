@@ -1129,18 +1129,18 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "description": "YouTube COPPA compliance flag. Default: false."
       },
       {
+        "name": "channels[].allowComment",
+        "in": "body",
+        "type": "boolean",
+        "required": false,
+        "description": "Let viewers comment. Default: true. Only TikTok and X support this. TikTok turns comments off. X has no full off switch, so it limits replies to accounts you mention. Ignored on YouTube, Instagram, Facebook, and Threads."
+      },
+      {
         "name": "channels[].tiktokPrivacyStatus",
         "in": "body",
         "type": "`public` \\| `friends` \\| `private`",
         "required": false,
         "description": "Privacy setting. Default: \"public\"."
-      },
-      {
-        "name": "channels[].allowComment",
-        "in": "body",
-        "type": "boolean",
-        "required": false,
-        "description": "Allow comments. Default: true."
       },
       {
         "name": "channels[].allowDuet",

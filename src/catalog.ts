@@ -117,10 +117,11 @@ Requires an active paid subscription with the Publish feature (Creator plan or h
 
 Each platform accepts different settings:
 - **YouTube:** title, tags, categoryId, madeForKids
-- **TikTok:** tiktokPrivacyStatus, allowComment, allowDuet, allowStitch, isAiGenerated
+- **TikTok:** tiktokPrivacyStatus, allowDuet, allowStitch, isAiGenerated
 - **Instagram:** instagramPlacement (reels/stories/timeline), shareToFeed
 - **Facebook:** uses the long caption and video with no extra settings
 - **Threads and X:** share shortCaption, kept within X's weighted 280-character limit
+- **Comments (TikTok and X only):** allowComment. No other platform lets us change it.
 
 Scheduled publications can be canceled before they go live with DELETE /publications/{publicationId}.`,
 };
