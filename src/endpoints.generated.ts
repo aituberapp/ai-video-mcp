@@ -866,7 +866,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "POST",
     "path": "/clips",
     "summary": "Generate a standalone AI video clip",
-    "description": "Starts generating a single AI video clip (1-15 seconds) from a text prompt, an image, or both. This is different from `POST /videos/generate`: no narration, no captions, just one raw clip.\n\n**Flow:** pick a model from `GET /clip-models`, create the clip, then poll `GET /clips/{id}` until `status` is `completed` and download from `outputUrl`. Typical generation takes 1-3 minutes.\n\n**Cost:** per second of clip, by model and resolution (see `creditsPerSecondByResolution` in `GET /clip-models`). Credits are reserved when the clip starts and refunded automatically if generation fails.\n\n**Requires an active paid subscription.**",
+    "description": "Starts generating a single AI video clip (1-30 seconds) from a text prompt, an image, or both. This is different from `POST /videos/generate`: no narration, no captions, just one raw clip.\n\n**Flow:** pick a model from `GET /clip-models`, create the clip, then poll `GET /clips/{id}` until `status` is `completed` and download from `outputUrl`. Typical generation takes 1-3 minutes.\n\n**Cost:** per second of clip, by model and resolution (see `creditsPerSecondByResolution` in `GET /clip-models`). Credits are reserved when the clip starts and refunded automatically if generation fails.\n\n**Requires an active paid subscription.**",
     "auth": true,
     "params": [
       {
@@ -909,7 +909,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "integer",
         "required": false,
-        "description": "Clip length in seconds (1-15, model dependent; check `minDurationSeconds`/`maxDurationSeconds`). Default: 5."
+        "description": "Clip length in seconds (1-30, model dependent; check `minDurationSeconds`/`maxDurationSeconds`). Default: 5."
       },
       {
         "name": "firstFrameUrl",
