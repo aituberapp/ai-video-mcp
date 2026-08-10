@@ -893,7 +893,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
       {
         "name": "aspectRatio",
         "in": "body",
-        "type": "`auto` \\| `16:9` \\| `9:16` \\| `4:3` \\| `3:4` \\| `1:1` \\| `21:9`",
+        "type": "`auto` \\| `16:9` \\| `9:16` \\| `4:3` \\| `3:4` \\| `1:1` \\| `21:9` \\| `3:2` \\| `2:3` \\| `9:21` \\| `5:4` \\| `4:5`",
         "required": false,
         "description": "Clip dimensions. Check the model's `supportedAspectRatios` from `GET /clip-models`. Default: \"16:9\"."
       },
