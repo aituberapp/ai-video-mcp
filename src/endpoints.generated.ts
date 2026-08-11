@@ -150,7 +150,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
       {
         "name": "purpose",
         "in": "body",
-        "type": "`clip-reference-image` \\| `clip-reference-video` \\| `clip-reference-audio` \\| `element-image` \\| `ugc-demo` \\| `music` \\| `voice-sample`",
+        "type": "`clip-reference-image` \\| `clip-reference-video` \\| `clip-reference-audio` \\| `element-image` \\| `ugc-demo` \\| `music` \\| `voice-sample` \\| `agent-attachment`",
         "required": true,
         "description": "What this file is for. Only listed purposes are accepted; each unlocks specific endpoints (see the endpoint description)."
       },
