@@ -17,7 +17,15 @@ import { instrument, type UserIdentity } from "@posthog/mcp";
 import { PostHog } from "posthog-node";
 import { z } from "zod";
 
-import { buildSearchResponse, listAllEndpoints } from "./catalog";
+import {
+  buildSearchResponse,
+  listAllEndpoints,
+  needsAccountState,
+  parseAccountState,
+  paywallGuidance,
+  SERVER_INSTRUCTIONS,
+  type AccountState,
+} from "./catalog";
 import { frontendApiUrlFromPublishableKey } from "./remote/clerk";
 
 // The version is inlined at build time by esbuild via `define`. It falls back to
@@ -240,6 +248,24 @@ async function apiRequest(
   };
 }
 
+/**
+ * Read the live plan and balance, used only to decide which upgrade path the
+ * paywall guidance may offer. A failure here is not worth surfacing: the
+ * guidance falls back to plans, which every account can buy.
+ */
+async function fetchAccountState(
+  baseUrl: string,
+  bearerToken: string
+): Promise<AccountState | undefined> {
+  try {
+    const result = await apiRequest(baseUrl, bearerToken, "GET", "/subscription");
+    if (result.status !== 200) return undefined;
+    return parseAccountState(result.body);
+  } catch {
+    return undefined;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // MCP server construction (one per request, stateless)
 // ---------------------------------------------------------------------------
@@ -250,10 +276,13 @@ function buildMcpServer(
   verified: VerifiedToken,
   posthog: PostHog | null
 ): McpServer {
-  const server = new McpServer({
-    name: "aituber",
-    version: PACKAGE_VERSION,
-  });
+  const server = new McpServer(
+    {
+      name: "aituber",
+      version: PACKAGE_VERSION,
+    },
+    { instructions: SERVER_INSTRUCTIONS }
+  );
 
   // Tool 1: Search the API
   server.tool(
@@ -289,7 +318,7 @@ function buildMcpServer(
   // Tool 2: Execute an API call
   server.tool(
     "execute_api",
-    "Execute a request against the AITuber API. Use search_api first to find the right endpoint and parameters. Handles authentication automatically.",
+    "Execute a request against the AITuber API. Use search_api first to find the right endpoint and parameters. Handles authentication automatically. A 402 or 403 result is a billing limit, not a bug: the response then carries the exact wording and the billing link to give the user, so pass it on instead of reporting a plain failure.",
     {
       method: z
         .enum(["GET", "POST", "PUT", "PATCH", "DELETE"])
@@ -347,11 +376,22 @@ function buildMcpServer(
             "\n\n... (response truncated. Use query filters to narrow results)";
         }
 
+        // A paywall is the one error the agent can actually resolve for the
+        // user, so the response carries the script for doing that.
+        // Out-of-credits needs the live plan first: only an active subscriber
+        // may be offered a pack.
+        const account = needsAccountState(result.status)
+          ? await fetchAccountState(env.AITUBER_API_BASE_URL, bearerToken)
+          : undefined;
+        const guidance = paywallGuidance(result.status, result.body, account);
+
         return {
           content: [
             {
               type: "text" as const,
-              text: `${result.status} ${result.statusText}\n\n${formattedBody}`,
+              text: `${result.status} ${result.statusText}\n\n${formattedBody}${
+                guidance ? `\n\n---\n\n${guidance}` : ""
+              }`,
             },
           ],
           isError: result.status >= 400,
