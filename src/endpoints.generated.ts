@@ -526,6 +526,13 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "description": "For `cover-image` mode: an image uploaded with `POST /uploads` (purpose `element-image`). Required for that mode."
       },
       {
+        "name": "elementId",
+        "in": "body",
+        "type": "string (uuid)",
+        "required": false,
+        "description": "A saved character from `GET /elements`. For `ai-images` and `ai-video`, that character's photo is used as a reference in every scene so they look the same."
+      },
+      {
         "name": "aspectRatio",
         "in": "body",
         "type": "`9:16` \\| `16:9` \\| `1:1`",
