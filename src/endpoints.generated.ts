@@ -488,7 +488,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "string",
         "required": false,
-        "description": "Optional art direction for the visuals, e.g. \"neon cyberpunk city at night, moody\"."
+        "description": "Optional art direction for the visuals, e.g. \"neon cyberpunk city at night, moody\". Mention a saved element by @handle (see `GET /elements`) to reuse it, e.g. \"@Robo-Cat on a rooftop\". Its photo is fed to the image model so it looks the same in every scene it appears in. Each mentioned element adds a reference charge per scene for `ai-images`."
       },
       {
         "name": "imageStyleId",
