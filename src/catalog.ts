@@ -52,7 +52,7 @@ The tool result carries the exact wording for each case. Follow it, and never in
 // ---------------------------------------------------------------------------
 
 export const KNOWLEDGE: Record<string, string> = {
-  "video types": `AITuber supports 5 video types, all created via POST /videos/generate:
+  "video types": `AITuber supports 6 video types, all created via POST /videos/generate:
 
 1. **Faceless Narration (images)** - Default. AI generates unique images for each segment with smooth Ken Burns animation. The classic "faceless video" style used by top YouTube channels. Set mediaType: "images" (or omit, it's the default).
 
@@ -64,9 +64,13 @@ export const KNOWLEDGE: Record<string, string> = {
 
 5. **Character Template** - Character-driven story format with consistent characters throughout. Set templateId: "character". Only supports inputType: "idea" (AI writes the script). The template handles mediaType and style automatically.
 
+6. **Medical Animation Template** - Scientifically accurate anatomy and health videos for education, patient explainers, and clinic content. Set templateId: "medical". Works with mediaType "images" (default) or "video" only.
+
 All types support voice selection, captions, aspect ratio, and other common settings.`,
 
   "skeleton": `Skeleton videos are a viral video format where subjects are shown in X-ray/skeleton style. Created by setting templateId: "skeleton" in POST /videos/generate. The template automatically selects the right AI model and visual style. IMPORTANT: Do NOT send mediaType, imageStyleId, or imageQuality when using this template. The template handles all visual settings. Just send script + templateId. Example: { "script": "What happens if you eat 100 bananas", "templateId": "skeleton" }`,
+
+  "medical": `Medical Animation videos explain anatomy, diseases, procedures, and clinic visits with scientifically accurate 3D medical visuals. Set templateId: "medical" in POST /videos/generate. Works with mediaType "images" (default, cheapest) or "video" (full-motion fly-throughs); stock is not supported for this template. Optional curated looks via imageStyleId: "medical-3d" (realistic 3D), "medical-translucent" (see-through body), "medical-xray", "medical-darkstudio" (isolated organ on black, great for clinic ads), "medical-cartoon" (patient-friendly); omit for auto. Example: { "script": "How a total knee replacement works, step by step", "templateId": "medical", "inputType": "idea", "expectedDurationSeconds": 60 }`,
 
   "character": `Character template creates story-driven videos with consistent AI characters throughout. Set templateId: "character" in POST /videos/generate. Important: character template only works with inputType: "idea" (the AI writes the script to maintain character consistency). You provide a topic, not a full script. IMPORTANT: Do NOT send mediaType, imageStyleId, or imageQuality when using this template. The template handles all visual settings. Example: { "script": "A detective solves a mystery in Tokyo", "templateId": "character", "inputType": "idea", "expectedDurationSeconds": 60 }`,
 
@@ -76,11 +80,12 @@ All types support voice selection, captions, aspect ratio, and other common sett
 
 Each [bracketed text] tells the AI exactly what to show for that scene. The text after it is the voiceover. This works in script mode with any media type (images, video, stock). No special flag needed.`,
 
-  "templates": `AITuber has 2 video templates that create specialized video formats:
+  "templates": `AITuber has 3 video templates that create specialized video formats:
 - **skeleton** - X-ray/skeleton style viral videos ("what happens if..." format)
+- **medical** - Accurate 3D medical animation for health education, patients, and clinics
 - **character** - Character-driven story videos with consistent characters
 
-Set templateId in POST /videos/generate. Templates override mediaType and imageStyleId automatically. For regular faceless narration videos, don't set templateId.`,
+Set templateId in POST /videos/generate. Templates override mediaType and imageStyleId automatically (medical keeps mediaType open: images or video). For regular faceless narration videos, don't set templateId.`,
 
   "avatars": `Avatar videos are talking-head videos where an avatar speaks your script to the camera. Created via POST /videos/generate with mediaType: "avatar".
 
@@ -186,6 +191,10 @@ export function searchKnowledge(query: string): string | null {
     "skeleton": "skeleton",
     "x-ray": "skeleton",
     "xray": "skeleton",
+    "medical": "medical",
+    "anatomy": "medical",
+    "surgery": "medical",
+    "health video": "medical",
     "character": "character",
     "story": "character",
     "template": "templates",
