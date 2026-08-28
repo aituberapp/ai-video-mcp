@@ -514,7 +514,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
       {
         "name": "videoQuality",
         "in": "body",
-        "type": "`basic` \\| `good` \\| `premium`",
+        "type": "`basic` \\| `good` \\| `premium` \\| `max`",
         "required": false,
         "description": "Clip quality for `ai-video` (higher costs more)."
       },
@@ -790,7 +790,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "string",
         "required": false,
-        "description": "Video clip generation quality. Only applies when `mediaType` is `\"video\"`.\n\n- `basic`: Fastest generation, lower visual quality.\n- `good` (default): Good balance of quality and speed.\n- `premium`: Highest quality video clips. Slower generation."
+        "description": "Video clip generation quality. Only applies when `mediaType` is `\"video\"`.\n\n- `basic`: Fastest generation, lower visual quality.\n- `good` (default): Good balance of quality and speed.\n- `premium`: High quality video clips. Slower generation.\n- `max`: 1080p clips, the sharpest we make. Costs the most per second."
       },
       {
         "name": "templateId",
