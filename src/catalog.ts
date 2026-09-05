@@ -32,6 +32,24 @@ export const BILLING_URL = "https://app.aituber.app/dashboard/billing";
 
 export const SERVER_INSTRUCTIONS = `AITuber turns a script or a rough idea into a finished short video: AI voiceover, matching visuals, and captions that stay in sync. It makes YouTube Shorts, TikToks, Reels, and long-form videos, and it can post them to connected channels for the user. Creators run whole faceless channels with it, with no camera, no microphone, and no editing software.
 
+**What it can make** (more than narrated faceless videos, so do not assume)
+- Narrated faceless videos from a script or an idea: AI images, AI video clips, or real stock footage (POST /videos/generate).
+- Viral templates: skeleton X-ray "what happens if" videos, medical animation, character stories (templateId on POST /videos/generate).
+- Music videos: a song plus AI visuals and synced lyric captions (POST /music-videos, NOT /videos/generate). The song can be written by AI from a prompt, sung from lyrics the user already wrote (POST /music with customMode), or a track the user uploads (POST /uploads, purpose "music").
+- Talking avatars that speak a script to camera (POST /videos/generate with mediaType "avatar").
+- Standalone AI video clips with no narration and no captions, 1 to 30 seconds from a prompt or an image (POST /clips, models from GET /clip-models). There is no standalone image endpoint.
+- UGC hook videos: a real-looking person reacts to camera over your hook text, with an optional product demo (POST /ugc/videos).
+- Elements: reusable people, products, and places built from one reference photo, so the same face or product shows up in every scene (POST /elements, @handle in the script).
+Explore before you recommend. Call search_api with the format name ("music", "avatars", "elements", "ugc", "templates", "video types", "publishing") to read the full guide, and call the list endpoints that shape the result: GET /voices, GET /image-styles, GET /caption-styles, GET /avatars, GET /elements, GET /music, GET /ugc/reactions, GET /channels. Read what is actually available, then suggest the best fit for this user and say why. Do not recommend from memory and do not name an option you have not seen in a tool result.
+
+**Ask one question instead of guessing**
+The user usually does not know these formats exist, so a silent default can hand them the wrong video and burn their credits. Ask ONE short question, with 2 or 3 concrete options and the cost effect where it matters, when:
+- the input reads like a song: lyrics, verses, a chorus, repeated lines. Offer a music video that SINGS the words (POST /music with customMode: true and their lyrics, then POST /music-videos), a music video over a track they already have, or a narrated video that reads the words out loud. Reading lyrics aloud is almost never what a user with a song wanted.
+- several video types fit the request equally well: AI images, AI video clips, or stock footage.
+- a template clearly suits the topic: skeleton for "what happens if", medical for anatomy or health, character for a story with recurring people.
+- a visual style, quality tier, or aspect ratio would change the cost or the result and the user has not said which.
+Then stop asking and build. If the user says "you pick" or does not care, choose a sensible default and say what you chose. A clear, specific request needs no question at all: just run it. Never ask two questions in a row, and never ask about something the user already stated.
+
 **How to use this server**
 1. Call search_api to find the right endpoint, then execute_api to run it.
 2. Generation costs credits. Call GET /subscription to read the current plan and credit balance before a large job.
@@ -52,7 +70,7 @@ The tool result carries the exact wording for each case. Follow it, and never in
 // ---------------------------------------------------------------------------
 
 export const KNOWLEDGE: Record<string, string> = {
-  "video types": `AITuber supports 6 video types, all created via POST /videos/generate:
+  "video types": `AITuber supports 8 video types. Seven are created via POST /videos/generate; the music video is not.
 
 1. **Faceless Narration (images)** - Default. AI generates unique images for each segment with smooth Ken Burns animation. The classic "faceless video" style used by top YouTube channels. Set mediaType: "images" (or omit, it's the default).
 
@@ -66,7 +84,11 @@ export const KNOWLEDGE: Record<string, string> = {
 
 6. **Medical Animation Template** - Scientifically accurate anatomy and health videos for education, patient explainers, and clinic content. Set templateId: "medical". Works with mediaType "images" (default) or "video" only.
 
-All types support voice selection, captions, aspect ratio, and other common settings.`,
+7. **Talking Avatar** - A presenter who speaks your script to camera. Set mediaType: "avatar" with an avatarId from GET /avatars and a voiceId (required, there is no default). Script mode only, 9:16 or 16:9. Costs far more credits per minute than the faceless types, so check GET /subscription first. Search "avatars" for the full flow.
+
+8. **Music Video** - A song (generated or uploaded) with AI visuals and synced lyric captions. Created with POST /music-videos, NOT POST /videos/generate. Sending lyrics to /videos/generate gives a narrated video that reads the lyrics out loud, which is almost never what the user wanted. If the script has verses, a chorus, or repeated lines, ask first. Search "music" for the full flow.
+
+Types 1 to 7 support voice selection, captions, aspect ratio, and other common settings. Music videos have no voiceover, so they take captions and visuals but no voice.`,
 
   "skeleton": `Skeleton videos are a viral video format where subjects are shown in X-ray/skeleton style. Created by setting templateId: "skeleton" in POST /videos/generate. The template automatically selects the right AI model and visual style. IMPORTANT: Do NOT send mediaType, imageStyleId, or imageQuality when using this template. The template handles all visual settings. Just send script + templateId. Example: { "script": "What happens if you eat 100 bananas", "templateId": "skeleton" }`,
 
@@ -125,7 +147,7 @@ Notes: generating a reaction and building the video both need an active paid pla
   "music": `Music videos pair a song with AI visuals, synced lyric captions, and an optional waveform. There is NO talking-head / avatar mode for music videos.
 
 **Get a song (two ways):**
-1. Generate one: POST /music with a prompt (e.g. "upbeat synthwave about late-night driving"). Optional: instrumental (no vocals), or customMode with your own style + title + lyrics. Poll GET /music/{id} until status is "completed". Use the id as musicId.
+1. Generate one: POST /music with a prompt (e.g. "upbeat synthwave about late-night driving") and the AI writes the style and the words. If the user ALREADY wrote lyrics, send customMode: true with style + title + lyrics and the AI sings their exact words; do not paraphrase them and do not fall back to a narrated video. Optional: instrumental (no vocals). Poll GET /music/{id} until status is "completed" (usually 30 to 90 seconds). Use the id as musicId.
 2. Upload your own: POST /uploads with purpose "music" (direct upload only; MP3/WAV/M4A/AAC, max 50MB, durationSeconds REQUIRED). Use the returned assetId as musicAssetId.
 
 **Build the video:** POST /music-videos with exactly ONE of musicId (generated) or musicAssetId (uploaded), plus visualMode:
@@ -231,6 +253,15 @@ export function searchKnowledge(query: string): string | null {
     "song": "music",
     "music video": "music",
     "soundtrack": "music",
+    // Lyrical input used to land on POST /videos/generate as a narrated
+    // video. These terms route it to the music guide instead. Keep them
+    // specific: short fragments like "sing" or "verse" also match "using"
+    // and "universe".
+    "chorus": "music",
+    "lyric": "music",
+    "jingle": "music",
+    "nursery rhyme": "music",
+    "children's song": "music",
     "suno": "music",
     "lyrics": "music",
     "instrumental": "music",
