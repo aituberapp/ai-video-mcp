@@ -40,11 +40,13 @@ export const SERVER_INSTRUCTIONS = `AITuber turns a script or a rough idea into 
 - Standalone AI video clips with no narration and no captions, 1 to 30 seconds from a prompt or an image (POST /clips, models from GET /clip-models). There is no standalone image endpoint.
 - UGC hook videos: a real-looking person reacts to camera over your hook text, with an optional product demo (POST /ugc/videos).
 - Elements: reusable people, products, and places built from one reference photo, so the same face or product shows up in every scene (POST /elements, @handle in the script).
+- A web page or a PDF turned into a narrated video, without the user pasting any text: send inputType "source" with source.url for a link, or upload the PDF (POST /uploads, purpose "document-source") and send source.assetId (POST /videos/generate).
 Explore before you recommend. Call search_api with the format name ("music", "avatars", "elements", "ugc", "templates", "video types", "publishing") to read the full guide, and call the list endpoints that shape the result: GET /voices, GET /image-styles, GET /caption-styles, GET /avatars, GET /elements, GET /music, GET /ugc/reactions, GET /channels. Read what is actually available, then suggest the best fit for this user and say why. Do not recommend from memory and do not name an option you have not seen in a tool result.
 
 **Ask one question instead of guessing**
 The user usually does not know these formats exist, so a silent default can hand them the wrong video and burn their credits. Ask ONE short question, with 2 or 3 concrete options and the cost effect where it matters, when:
 - the input reads like a song: lyrics, verses, a chorus, repeated lines. Offer a music video that SINGS the words (POST /music with customMode: true and their lyrics, then POST /music-videos), a music video over a track they already have, or a narrated video that reads the words out loud. Reading lyrics aloud is almost never what a user with a song wanted.
+- the user gives a link or a document instead of a script. Offer to read it for them (source.url or source.assetId) rather than pasting the text yourself, and ask whether to summarize it or read it out word for word.
 - several video types fit the request equally well: AI images, AI video clips, or stock footage.
 - a template clearly suits the topic: skeleton for "what happens if", medical for anatomy or health, character for a story with recurring people.
 - a visual style, quality tier, or aspect ratio would change the cost or the result and the user has not said which.
@@ -70,7 +72,7 @@ The tool result carries the exact wording for each case. Follow it, and never in
 // ---------------------------------------------------------------------------
 
 export const KNOWLEDGE: Record<string, string> = {
-  "video types": `AITuber supports 8 video types. Seven are created via POST /videos/generate; the music video is not.
+  "video types": `AITuber supports 9 video types. Eight are created via POST /videos/generate; the music video is not.
 
 1. **Faceless Narration (images)** - Default. AI generates unique images for each segment with smooth Ken Burns animation. The classic "faceless video" style used by top YouTube channels. Set mediaType: "images" (or omit, it's the default).
 
@@ -88,7 +90,9 @@ export const KNOWLEDGE: Record<string, string> = {
 
 8. **Music Video** - A song (generated or uploaded) with AI visuals and synced lyric captions. Created with POST /music-videos, NOT POST /videos/generate. Sending lyrics to /videos/generate gives a narrated video that reads the lyrics out loud, which is almost never what the user wanted. If the script has verses, a chorus, or repeated lines, ask first. Search "music" for the full flow.
 
-Types 1 to 7 support voice selection, captions, aspect ratio, and other common settings. Music videos have no voiceover, so they take captions and visuals but no voice.`,
+9. **Article or PDF to Video** - The user supplies a source instead of a script. Set inputType: "source" and send either source.url (any public web page) or source.assetId (a PDF uploaded via POST /uploads with purpose "document-source", PDF only, max 25MB). Do NOT paste the page text yourself; we fetch and read it while the video is being made. expectedDurationSeconds is REQUIRED. source.mode picks the treatment: "summarize" (default) writes a short narration faithful to the source, "read-out" speaks the text word for word and treats the duration as a ceiling. Add source.instructions to steer it, e.g. "focus on the cost section". Paywalled pages and pages behind a login cannot be read. Example: { "inputType": "source", "source": { "kind": "url", "url": "https://example.com/article", "mode": "summarize" }, "expectedDurationSeconds": 60 }
+
+Types 1 to 7 and 9 support voice selection, captions, aspect ratio, and other common settings. Music videos have no voiceover, so they take captions and visuals but no voice.`,
 
   "skeleton": `Skeleton videos are a viral video format where subjects are shown in X-ray/skeleton style. Created by setting templateId: "skeleton" in POST /videos/generate. The template automatically selects the right AI model and visual style. IMPORTANT: Do NOT send mediaType, imageStyleId, or imageQuality when using this template. The template handles all visual settings. Just send script + templateId. Example: { "script": "What happens if you eat 100 bananas", "templateId": "skeleton" }`,
 

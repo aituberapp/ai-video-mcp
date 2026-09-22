@@ -173,7 +173,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "integer",
         "required": false,
-        "description": "The file size in bytes for a direct upload. Max depends on the purpose (25MB images, 200MB video, 50MB audio)."
+        "description": "The file size in bytes for a direct upload. Max depends on the purpose (25MB images, 200MB video, 50MB audio, 25MB documents)."
       },
       {
         "name": "durationSeconds",
@@ -706,14 +706,56 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "`script` \\| `idea` \\| `source`",
         "required": false,
-        "description": "How to interpret the `script` field.\n\n- `script` (default): Your text is the exact narration. You control every word that is spoken.\n- `idea`: You provide a topic and the AI writes an engaging narration script for you. Use `expectedDurationSeconds` to control the target length.\n- `source`: Here is the text of an article or a document. Write a short video script from it. The AI keeps to that text and invents nothing. **Limited preview:** this mode is not open to all accounts yet and returns a 403 until it is. `expectedDurationSeconds` is required, because it sets how long the script is."
+        "description": "How to interpret the `script` field.\n\n- `script` (default): Your text is the exact narration. You control every word that is spoken.\n- `idea`: You provide a topic and the AI writes an engaging narration script for you. Use `expectedDurationSeconds` to control the target length.\n- `source`: Here is the text of an article or a document. Write a short video script from it. The AI keeps to that text and invents nothing. `expectedDurationSeconds` is required, because it sets how long the script is. Send `source.url` or `source.assetId` to have us read the page or the PDF for you, or send the text yourself in `script`."
       },
       {
         "name": "source",
         "in": "body",
         "type": "object",
         "required": false,
-        "description": "Where the source text comes from. Only allowed with `inputType: \"source\"`; sending it with any other `inputType` returns a 400.\n\nTwo ways to use it: send `url` or `assetId` and we read the page or the file ourselves (then `script` is not needed), or read it yourself and send the text in `script`, using `title`, `extractor` and `truncated` to describe where it came from."
+        "description": "Where the source text comes from. Only allowed with `inputType: \"source\"`; sending it with any other `inputType` returns a 400.\n\nTwo ways to use it: send `url` or `assetId` and we read the page or the file ourselves (then `script` is not needed), or read the page yourself and send the text in `script`."
+      },
+      {
+        "name": "source.kind",
+        "in": "body",
+        "type": "`url` \\| `document`",
+        "required": false,
+        "description": "Where the text comes from: `url` for a web page, `document` for a file you uploaded."
+      },
+      {
+        "name": "source.url",
+        "in": "body",
+        "type": "string",
+        "required": false,
+        "description": "The web page to read. Use with `kind: \"url\"`. Send this INSTEAD of `script` and we fetch the page while the video is being made. The page must be public; a page that needs a login cannot be read."
+      },
+      {
+        "name": "source.assetId",
+        "in": "body",
+        "type": "string (uuid)",
+        "required": false,
+        "description": "The uploaded PDF to read. Use with `kind: \"document\"`. Send this INSTEAD of `script` and we read the file while the video is being made. Upload the file first to get this id."
+      },
+      {
+        "name": "source.mode",
+        "in": "body",
+        "type": "`summarize` \\| `read-out`",
+        "required": false,
+        "description": "What to do with the text.\n\n- `summarize` (default): the AI writes a short narration from the text, faithful to it, about `expectedDurationSeconds` long.\n- `read-out`: the text itself is the narration, word for word. Nothing is rewritten and no AI writing step runs. `expectedDurationSeconds` is the CEILING here: text longer than that is cut at a sentence end, so the video never runs past the length you asked for."
+      },
+      {
+        "name": "source.title",
+        "in": "body",
+        "type": "string",
+        "required": false,
+        "description": "Title of the page or the document, when you know it. Ignored when we read the page ourselves."
+      },
+      {
+        "name": "source.instructions",
+        "in": "body",
+        "type": "string",
+        "required": false,
+        "description": "What you want done with the source, e.g. \"focus on the cost section\" or \"keep it upbeat\". Max 600 characters."
       },
       {
         "name": "mediaType",

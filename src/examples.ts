@@ -25,6 +25,29 @@ export const EXAMPLES: Record<string, EndpointExamples> = {
           "The ocean covers over 70 percent of Earth's surface. Beneath the waves lies a world few have ever seen.",
         mediaType: "video",
       },
+      "Article to Video (we read the link)": {
+        // No `script`: send the link and we fetch and read the page while the
+        // video is being made.
+        inputType: "source",
+        source: {
+          kind: "url",
+          url: "https://example.com/news/story",
+          mode: "summarize",
+          instructions: "focus on what it means for small businesses",
+        },
+        expectedDurationSeconds: 60,
+      },
+      "PDF to Video (upload first, then send the id)": {
+        // Upload the PDF with POST /uploads (purpose "document-source") to get
+        // an assetId, then send that here instead of `script`.
+        inputType: "source",
+        source: {
+          kind: "document",
+          assetId: "7c9e6679-7425-40de-944b-e07fc1f90ae7", // from POST /uploads
+          mode: "summarize",
+        },
+        expectedDurationSeconds: 90,
+      },
       "Skeleton template": {
         script: "What happens if you eat 100 bananas in one day",
         templateId: "skeleton",
