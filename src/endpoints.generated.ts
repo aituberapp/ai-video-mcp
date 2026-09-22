@@ -144,13 +144,13 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "POST",
     "path": "/uploads",
     "summary": "Upload a media file",
-    "description": "Gets a media file into your AITuber library and returns an `assetId` you can pass to other endpoints. Every upload has a `purpose` that says what the file is for; the purpose decides the validation rules and where the asset can be used.\n\n**Two ways to upload:**\n\n**1. From a URL** (easiest, works from AI agents): pass `sourceUrl` and we download the file for you. Only available for small image purposes (not video).\n\n**2. Direct upload** (for local files): pass `contentType` and `fileSizeBytes` and you get back an `uploadUrl`. PUT your file bytes to that URL within 1 hour (set the same Content-Type header), then use the `assetId`.\n\n**Supported purposes:**\n- `clip-reference-image`, `clip-reference-video`, `clip-reference-audio`: input files for standalone clip generation. Images allow JPEG, PNG, or WebP up to 25MB. Videos allow MP4, MOV, or WebM up to 200MB. Audio allows MP3, WAV, M4A, AAC, OGG, or WebM up to 50MB. Direct upload only.\n- `rebuild-still`: a Before or After picture for an AI Construction Timelapse (`templateId: \"rebuild\"`). Pass the returned URL as `beforeImageUrl` or `afterImageUrl`. A photo, a drawing, or a render all work. JPEG, PNG, or WebP, max 25MB. URL upload allowed.\n- `element-image`: a reference photo for an element (a person, product, or place). JPEG, PNG, or WebP, max 25MB. URL upload allowed. Use the `assetId` in `POST /elements`.\n- `visual-style-reference`: a picture of a look you want to reuse. JPEG, PNG, or WebP, max 10MB. URL upload allowed. AITuber reads the picture and writes a reusable visual style from it.\n- `ugc-demo`: a product demo video for a UGC hook video. MP4, MOV, or WebM, max 200MB, up to 3 minutes. Direct upload only. Use the `assetId` as `demoVideoAssetId` in `POST /ugc/videos`.\n- `music`: an audio track to score a music video. MP3, WAV, M4A, or AAC, max 50MB. Direct upload only, and `durationSeconds` is REQUIRED. Use the `assetId` as `musicAssetId` in `POST /music-videos`.\n- `voice-sample`: an audio sample for voice cloning. MP3, WAV, M4A, AAC, OGG, or WebM, max 11MB. Direct upload only. Pass the `assetId` to the voice clone endpoint.\n- `document-source`: a PDF to turn into a video. PDF only, max 25MB, up to 100 pages. Direct upload only.\n\nOptional `fileName`: the name of the file you are uploading. We keep it for display, so a PDF shows its own name instead of an id.\n\nUploads that are never attached to anything are deleted after 7 days.",
+    "description": "Gets a media file into your AITuber library and returns an `assetId` you can pass to other endpoints. Every upload has a `purpose` that says what the file is for; the purpose decides the validation rules and where the asset can be used.\n\n**Two ways to upload:**\n\n**1. From a URL** (easiest, works from AI agents): pass `sourceUrl` and we download the file for you. Only available for small image purposes (not video).\n\n**2. Direct upload** (for local files): pass `contentType` and `fileSizeBytes` and you get back an `uploadUrl`. PUT your file bytes to that URL within 1 hour (set the same Content-Type header), then use the `assetId`.\n\n**Supported purposes:**\n- `background-video-upload`: H.264 MP4, up to 500MB and 10 minutes. Direct upload only. Call POST /uploads/confirm-background-video after PUT.\n- `clip-reference-image`, `clip-reference-video`, `clip-reference-audio`: input files for standalone clip generation. Images allow JPEG, PNG, or WebP up to 25MB. Videos allow MP4, MOV, or WebM up to 200MB. Audio allows MP3, WAV, M4A, AAC, OGG, or WebM up to 50MB. Direct upload only.\n- `rebuild-still`: a Before or After picture for an AI Construction Timelapse (`templateId: \"rebuild\"`). Pass the returned URL as `beforeImageUrl` or `afterImageUrl`. A photo, a drawing, or a render all work. JPEG, PNG, or WebP, max 25MB. URL upload allowed.\n- `element-image`: a reference photo for an element (a person, product, or place). JPEG, PNG, or WebP, max 25MB. URL upload allowed. Use the `assetId` in `POST /elements`.\n- `visual-style-reference`: a picture of a look you want to reuse. JPEG, PNG, or WebP, max 10MB. URL upload allowed. AITuber reads the picture and writes a reusable visual style from it.\n- `ugc-demo`: a product demo video for a UGC hook video. MP4, MOV, or WebM, max 200MB, up to 3 minutes. Direct upload only. Use the `assetId` as `demoVideoAssetId` in `POST /ugc/videos`.\n- `music`: an audio track to score a music video. MP3, WAV, M4A, or AAC, max 50MB. Direct upload only, and `durationSeconds` is REQUIRED. Use the `assetId` as `musicAssetId` in `POST /music-videos`.\n- `voice-sample`: an audio sample for voice cloning. MP3, WAV, M4A, AAC, OGG, or WebM, max 11MB. Direct upload only. Pass the `assetId` to the voice clone endpoint.\n- `document-source`: a PDF to turn into a video. PDF only, max 25MB, up to 100 pages. Direct upload only.\n\nOptional `fileName`: the name of the file you are uploading. We keep it for display, so a PDF shows its own name instead of an id.\n\nUploads that are never attached to anything are deleted after 7 days.",
     "auth": true,
     "params": [
       {
         "name": "purpose",
         "in": "body",
-        "type": "`clip-reference-image` \\| `clip-reference-video` \\| `clip-reference-audio` \\| `rebuild-still` \\| `element-image` \\| `visual-style-reference` \\| `ugc-demo` \\| `music` \\| `voice-sample` \\| `document-source` \\| `agent-attachment`",
+        "type": "`background-video-library-upload` \\| `background-video-upload` \\| `clip-reference-image` \\| `clip-reference-video` \\| `clip-reference-audio` \\| `rebuild-still` \\| `document-source` \\| `element-image` \\| `visual-style-reference` \\| `ugc-demo` \\| `music` \\| `voice-sample` \\| `agent-attachment`",
         "required": true,
         "description": "What this file is for. Only listed purposes are accepted; each unlocks specific endpoints (see the endpoint description)."
       },
@@ -166,7 +166,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "in": "body",
         "type": "`image/jpeg` \\| `image/png` \\| `image/webp` \\| `video/mp4` \\| `video/quicktime` \\| `video/webm` \\| `audio/mpeg` \\| `audio/wav` \\| `audio/mp4` \\| `audio/x-m4a` \\| `audio/aac` \\| `audio/mp3` \\| `audio/wave` \\| `audio/x-wav` \\| `audio/ogg` \\| `audio/webm` \\| `application/pdf`",
         "required": false,
-        "description": "The file type for a direct upload. Returns an `uploadUrl` to PUT the bytes to. Must match the purpose (image, video, or audio)."
+        "description": "The file type for a direct upload. Returns an `uploadUrl` to PUT the bytes to. Must match the purpose (image, video, audio, or document)."
       },
       {
         "name": "fileSizeBytes",
@@ -772,9 +772,16 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
         "description": "What you want done with the source, e.g. \"focus on the cost section\" or \"keep it upbeat\". Max 600 characters."
       },
       {
+        "name": "backgroundVideoId",
+        "in": "body",
+        "type": "string (uuid)",
+        "required": false,
+        "description": "For background mode: an id from GET /background-videos. One clip repeats under the full narration; source audio is muted."
+      },
+      {
         "name": "mediaType",
         "in": "body",
-        "type": "`images` \\| `video` \\| `stock` \\| `avatar`",
+        "type": "`images` \\| `video` \\| `stock` \\| `background` \\| `avatar`",
         "required": false,
         "description": "The type of visuals for your video. Each produces a different look and feel.\n\n- `images` (default): AI generates a unique image for each segment, displayed with smooth Ken Burns pan/zoom animation. This is the classic \"faceless narration video\" style used by top YouTube channels. Most popular and cheapest option. Control the look with `imageQuality` and `imageStyleId`.\n- `video`: AI generates short video clips for each segment. More dynamic and cinematic than images, but costs more credits. Also used internally by the `skeleton` and `character` templates.\n- `stock`: Automatically finds and matches real stock footage to each segment. Great for news, educational, and documentary-style content.\n- `avatar`: A talking-head video where an avatar speaks your script. **Requires `avatarId` (from `GET /avatars`) and `voiceId`.** Script mode only (no idea mode), max 5 minutes, aspect ratio `9:16` or `16:9`. Costs ~480 credits per minute of video plus narration, far more than other media types. Generation also takes longer (usually 3-10 minutes).\n\n**For most use cases, leave this as default (`images`) unless you are using a template.** When using `templateId`, the template automatically selects the best media type for you, so you do not need to set `mediaType` separately."
       },
@@ -1316,5 +1323,57 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "description": "Returns your current plan and credit balance. Call this before generating videos to check you have enough credits.\n\nPaid plans add credits each billing cycle (monthly or yearly). Credits never expire.\n\n**Upgrading:** To upgrade your plan or purchase additional credits, go to https://app.aituber.app/dashboard/billing",
     "auth": true,
     "params": []
+  },
+  {
+    "method": "GET",
+    "path": "/background-videos",
+    "summary": "List background videos",
+    "description": "",
+    "auth": false,
+    "params": [
+      {
+        "name": "categorySlug",
+        "in": "query",
+        "type": "string",
+        "description": ""
+      },
+      {
+        "name": "cursor",
+        "in": "query",
+        "type": "string (uuid)",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/background-videos/categories",
+    "summary": "List background video categories",
+    "description": "",
+    "auth": false,
+    "params": []
+  },
+  {
+    "method": "POST",
+    "path": "/uploads/confirm-background-video",
+    "summary": "Confirm a background video upload",
+    "description": "",
+    "auth": false,
+    "params": [
+      {
+        "name": "assetId",
+        "in": "body",
+        "type": "string (uuid)",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "title",
+        "in": "body",
+        "type": "string",
+        "required": true,
+        "description": ""
+      }
+    ]
   }
 ];
