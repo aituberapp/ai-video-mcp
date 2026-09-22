@@ -34,7 +34,7 @@ export const SERVER_INSTRUCTIONS = `AITuber turns a script or a rough idea into 
 
 **What it can make** (more than narrated faceless videos, so do not assume)
 - Narrated faceless videos from a script or an idea: AI images, AI video clips, or real stock footage (POST /videos/generate).
-- Viral templates: skeleton X-ray "what happens if" videos, medical animation, character stories (templateId on POST /videos/generate).
+- Viral templates: skeleton X-ray "what happens if" videos, medical animation, character stories, AI construction timelapses (templateId on POST /videos/generate).
 - Music videos: a song plus AI visuals and synced lyric captions (POST /music-videos, NOT /videos/generate). The song can be written by AI from a prompt, sung from lyrics the user already wrote (POST /music with customMode), or a track the user uploads (POST /uploads, purpose "music").
 - Talking avatars that speak a script to camera (POST /videos/generate with mediaType "avatar").
 - Standalone AI video clips with no narration and no captions, 1 to 30 seconds from a prompt or an image (POST /clips, models from GET /clip-models). There is no standalone image endpoint.
@@ -48,7 +48,7 @@ The user usually does not know these formats exist, so a silent default can hand
 - the input reads like a song: lyrics, verses, a chorus, repeated lines. Offer a music video that SINGS the words (POST /music with customMode: true and their lyrics, then POST /music-videos), a music video over a track they already have, or a narrated video that reads the words out loud. Reading lyrics aloud is almost never what a user with a song wanted.
 - the user gives a link or a document instead of a script. Offer to read it for them (source.url or source.assetId) rather than pasting the text yourself, and ask whether to summarize it or read it out word for word.
 - several video types fit the request equally well: AI images, AI video clips, or stock footage.
-- a template clearly suits the topic: skeleton for "what happens if", medical for anatomy or health, character for a story with recurring people.
+- a template clearly suits the topic: skeleton for "what happens if", medical for anatomy or health, character for a story with recurring people, rebuild for a place that gets built, renovated, cleared or restored.
 - a visual style, quality tier, or aspect ratio would change the cost or the result and the user has not said which.
 Then stop asking and build. If the user says "you pick" or does not care, choose a sensible default and say what you chose. A clear, specific request needs no question at all: just run it. Never ask two questions in a row, and never ask about something the user already stated.
 
@@ -106,12 +106,36 @@ Types 1 to 7 and 9 support voice selection, captions, aspect ratio, and other co
 
 Each [bracketed text] tells the AI exactly what to show for that scene. The text after it is the voiceover. This works in script mode with any media type (images, video, stock). No special flag needed.`,
 
-  "templates": `AITuber has 3 video templates that create specialized video formats:
+  "templates": `AITuber has 4 video templates that create specialized video formats:
 - **skeleton** - X-ray/skeleton style viral videos ("what happens if..." format)
 - **medical** - Accurate 3D medical animation for health education, patients, and clinics
 - **character** - Character-driven story videos with consistent characters
+- **rebuild** - AI Construction Timelapse: one place going from messy or empty to finished, in a single locked shot
 
-Set templateId in POST /videos/generate. Templates override mediaType and imageStyleId automatically (medical keeps mediaType open: images or video). For regular faceless narration videos, don't set templateId.`,
+Set templateId in POST /videos/generate. Templates override mediaType and imageStyleId automatically (medical keeps mediaType open: images or video). For regular faceless narration videos, don't set templateId.
+
+**AI Construction Timelapse (templateId "rebuild") in detail**
+
+What it makes: one place changing over time, seen from a camera that never moves. The viewer compares the same frame from the first second to the last, which is what makes the change read. Think a derelict house becoming a finished home, a rubbish-filled lot becoming a football pitch, a muddy track becoming a paved road, or a hoarded room becoming a clean one.
+
+How it differs from every other video type:
+- No voiceover and no captions. Do not write a narration script for it.
+- You hear the sounds of the work itself. Background music is laid over the whole video as one continuous track.
+- The last few seconds always show the finished place in USE, not standing empty.
+- Duration is 15 to 60 seconds. Anything above 60 returns a 400.
+- The subject must be a PHYSICAL PLACE that changes. A lecture, a joke, a product review, or a talking character is rejected with a clear reason.
+
+Two ways to give it the place, and you can mix them:
+1. **Words only.** Send inputType "idea" with a description of the place now and what it becomes. Name the fixed things in frame (a door, a tree, a fence, a pole) so the camera has something to lock onto. Example: "A dirty canal becomes a park with paths and lights."
+2. **Your own pictures.** beforeImageUrl becomes the first frame, afterImageUrl becomes the last, and we draw every frame between them at that camera angle. The place does not have to exist yet: a photo, a drawing, or a render all work, so a design of the finished build is a normal After picture. Get a URL from POST /uploads with purpose "rebuild-still" (URL upload allowed), or pass any public HTTPS image URL directly.
+
+Uploaded pictures cost nothing and replace a still we would have generated, so they lower the total.
+
+Cost: you pay for stills plus AI video, and there is no voice charge. Ask GET /subscription for the balance before a 60 second job; these are among the more expensive videos AITuber makes.
+
+Quality: videoQuality defaults to "good" on this endpoint. "basic" and "good" are the same model at two sizes; "premium" is a genuinely better model and is the right pick for a showcase video.
+
+Example: { "script": "A rutted muddy village track becomes a finished paved road with painted lanes, kerbs and street lights, seen from the roadside with a leaning utility pole on the left", "inputType": "idea", "templateId": "rebuild", "expectedDurationSeconds": 40, "videoQuality": "premium" }`,
 
   "avatars": `Avatar videos are talking-head videos where an avatar speaks your script to the camera. Created via POST /videos/generate with mediaType: "avatar".
 
@@ -223,6 +247,13 @@ export function searchKnowledge(query: string): string | null {
     "health video": "medical",
     "character": "character",
     "story": "character",
+    "construction": "templates",
+    "timelapse": "templates",
+    "time lapse": "templates",
+    "before and after": "templates",
+    "renovation": "templates",
+    "rebuild": "templates",
+    "transformation": "templates",
     "template": "templates",
     "video type": "video types",
     "media type": "video types",
