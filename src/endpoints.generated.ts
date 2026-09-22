@@ -695,6 +695,20 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "auth": true,
     "params": [
       {
+        "name": "thumbnail",
+        "in": "body",
+        "type": "object",
+        "required": false,
+        "description": ""
+      },
+      {
+        "name": "thumbnail.instructions",
+        "in": "body",
+        "type": "string",
+        "required": false,
+        "description": ""
+      },
+      {
         "name": "script",
         "in": "body",
         "type": "string",
