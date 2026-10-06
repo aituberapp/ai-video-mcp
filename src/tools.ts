@@ -261,11 +261,14 @@ async function callApi(
   transport: ToolTransport,
   method: string,
   path: string,
-  options: ApiRequestOptions
+  options: ApiRequestOptions,
+  toolName?: string
 ): Promise<ToolResult> {
   try {
     const result = await transport.request(method, path, options);
-    const formattedBody = prettyBody(result.body);
+    const formattedBody = prettyBody(
+      result.status < 400 && toolName ? trimBody(toolName, result.body) : result.body
+    );
     const account = needsAccountState(result.status)
       ? await transport.accountState()
       : undefined;
@@ -433,6 +436,35 @@ function splitNamedArgs(
   };
 }
 
+/**
+ * Named tools that return a trimmed record. A status poll repeats every few
+ * seconds, and GET /videos/{id} carries the whole scene payload (word timings,
+ * per-scene prompts, caption config), tens of kilobytes the agent never needs
+ * to answer "is it done". The full record stays one api_read call away.
+ */
+const RESPONSE_TRIM: Record<string, (body: unknown) => unknown> = {
+  get_video: (body) => {
+    if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+    const { data, ...rest } = body as Record<string, unknown>;
+    const scenes = (data as { images?: unknown[] } | undefined)?.images;
+    return {
+      ...rest,
+      sceneCount: Array.isArray(scenes) ? scenes.length : undefined,
+      note: "Scene data omitted. For the full record call api_read GET /videos/{id}.",
+    };
+  },
+};
+
+function trimBody(toolName: string, raw: string): string {
+  const trim = RESPONSE_TRIM[toolName];
+  if (!trim) return raw;
+  try {
+    return JSON.stringify(trim(JSON.parse(raw)));
+  } catch {
+    return raw;
+  }
+}
+
 /** Register every tool on the server. Call once per McpServer instance. */
 export function registerTools(server: McpServer, transport: ToolTransport): void {
   // Named tools: one per generated entry, thin wrappers over the same endpoint
@@ -452,7 +484,8 @@ export function registerTools(server: McpServer, transport: ToolTransport): void
           transport,
           tool.method,
           tool.path,
-          splitNamedArgs(tool, args as Record<string, unknown>)
+          splitNamedArgs(tool, args as Record<string, unknown>),
+          tool.name
         )
     );
   }

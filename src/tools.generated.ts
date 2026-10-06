@@ -528,7 +528,7 @@ export const GENERATED_TOOLS: GeneratedTool[] = [
   {
     "name": "get_video",
     "title": "Get a video",
-    "description": "Returns one video by id with its generation status: processing, completed, or failed with the error.",
+    "description": "Returns one video by id with its generation status: processing, completed, or failed with the error. Also returns title, duration, export status, and thumbnail. Scene data is omitted; for the full record call api_read GET /videos/{id}.",
     "capability": "getVideoStatus",
     "method": "GET",
     "path": "/videos/{id}",

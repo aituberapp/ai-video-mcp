@@ -356,34 +356,58 @@ export function searchKnowledge(query: string): string | null {
   return null;
 }
 
+/** "credits" matches "credit", "voices" matches "voice": a plain trailing s is dropped. */
+function stem(term: string): string {
+  return term.length > 3 && term.endsWith("s") ? term.slice(0, -1) : term;
+}
+
 export function searchEndpoints(query: string): Endpoint[] {
-  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  // One-letter words ("a") match everything and say nothing.
+  const terms = query.toLowerCase().split(/\s+/).filter((term) => term.length > 1).map(stem);
 
   const scored = ENDPOINTS.map((ep) => {
-    const searchable = [
-      ep.method,
-      ep.path,
-      ep.summary,
-      ep.description,
-      ...ep.params.map((p) => `${p.name} ${p.description}`),
-    ]
+    // A hit in the path or the summary says what the endpoint IS; a hit in
+    // the description or a parameter only says it mentions the word. The
+    // long create endpoints mention almost everything, so the first kind
+    // has to outrank the second.
+    const head = `${ep.method} ${ep.path} ${ep.summary}`.toLowerCase();
+    const body = [ep.description, ...ep.params.map((p) => `${p.name} ${p.description}`)]
       .join(" ")
       .toLowerCase();
 
     let score = 0;
     for (const term of terms) {
-      if (searchable.includes(term)) score++;
+      if (head.includes(term)) score += 3;
+      else if (body.includes(term)) score += 1;
     }
     return { ep, score };
   });
 
+  // Ties: an endpoint with a named tool first (the common path), then the
+  // shorter path, which is the more general one.
   return scored
     .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        Number(Boolean(namedToolFor(b.ep))) - Number(Boolean(namedToolFor(a.ep))) ||
+        a.ep.path.length - b.ep.path.length
+    )
     .map((s) => s.ep);
 }
 
+/** The named tool that fronts an endpoint, when there is one. */
+function namedToolFor(ep: Endpoint): string | undefined {
+  return GENERATED_TOOLS.find((tool) => tool.method === ep.method && tool.path === ep.path)?.name;
+}
+
 export function formatEndpoint(ep: Endpoint): string {
+  const tool = namedToolFor(ep);
+  if (tool) {
+    // The client already holds this schema as the tool's input, so the search
+    // result points at the tool instead of repeating twenty kilobytes.
+    return `## ${ep.method} ${ep.path}\n**${ep.summary}**\n\nUse the \`${tool}\` tool. Its input schema lists every parameter.`;
+  }
   const lines: string[] = [];
   lines.push(`## ${ep.method} ${ep.path}`);
   lines.push(`**${ep.summary}**`);
@@ -431,14 +455,28 @@ export function formatEndpoint(ep: Endpoint): string {
 }
 
 /** Build the search_api response text for a query. Returns null when nothing matched. */
+/** Endpoints shown in full per search; the rest are one-liners. */
+const SEARCH_FULL_RESULTS = 3;
+
 export function buildSearchResponse(query: string): string | null {
   const knowledge = searchKnowledge(query);
   const results = searchEndpoints(query);
 
   const parts: string[] = [];
   if (knowledge) parts.push(knowledge);
-  if (results.length > 0) {
-    parts.push(results.map(formatEndpoint).join("\n\n---\n\n"));
+  // A broad word like "video" matches most of the catalog. The best matches
+  // get their full entry; the rest is one line each, so a search stays small
+  // and the agent can search again with a narrower phrase.
+  const full = results.slice(0, SEARCH_FULL_RESULTS);
+  const brief = results.slice(SEARCH_FULL_RESULTS);
+  if (full.length > 0) {
+    parts.push(full.map(formatEndpoint).join("\n\n---\n\n"));
+  }
+  if (brief.length > 0) {
+    parts.push(
+      `**Other matches** (search again with a narrower phrase for details):\n` +
+        brief.map((ep) => `- ${ep.method} ${ep.path}: ${ep.summary}`).join("\n")
+    );
   }
   if (parts.length === 0) return null;
 
