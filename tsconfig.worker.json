@@ -10,5 +10,5 @@
     "lib": ["ES2022"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["src/remote.ts", "src/remote/**/*", "src/catalog.ts", "src/endpoints.generated.ts", "src/examples.ts"]
+  "include": ["src/remote.ts", "src/remote/**/*", "src/catalog.ts", "src/endpoints.generated.ts", "src/examples.ts", "src/tools.ts", "src/tools.generated.ts"]
 }

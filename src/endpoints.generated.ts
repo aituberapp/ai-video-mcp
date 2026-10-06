@@ -1320,7 +1320,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "GET",
     "path": "/subscription",
     "summary": "Get plan and credit balance",
-    "description": "Returns your current plan and credit balance. Call this before generating videos to check you have enough credits.\n\nPaid plans add credits each billing cycle (monthly or yearly). Credits never expire.\n\n**Upgrading:** To upgrade your plan or purchase additional credits, go to https://app.aituber.app/dashboard/billing",
+    "description": "Returns your current plan and credit balance. Call this before generating videos to check you have enough credits.\n\nPaid plans add credits each billing cycle (monthly or yearly). Credits never expire.\n\n**Plans:** credits and paid features come with a plan. Your plan and credits are managed at https://app.aituber.app/dashboard/billing. Plans are bought on the website, not through the API.",
     "auth": true,
     "params": []
   },
@@ -1352,28 +1352,5 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "description": "",
     "auth": false,
     "params": []
-  },
-  {
-    "method": "POST",
-    "path": "/uploads/confirm-background-video",
-    "summary": "Confirm a background video upload",
-    "description": "",
-    "auth": false,
-    "params": [
-      {
-        "name": "assetId",
-        "in": "body",
-        "type": "string (uuid)",
-        "required": true,
-        "description": ""
-      },
-      {
-        "name": "title",
-        "in": "body",
-        "type": "string",
-        "required": true,
-        "description": ""
-      }
-    ]
   }
 ];

@@ -110,28 +110,45 @@ Ask your AI assistant:
 
 ## How it works
 
-The server provides two tools:
+The server exposes named tools for the common path and three generic tools for the rest of the API.
 
-### `search_api`
+### Named tools
 
-Finds the right AITuber API endpoint for your task. Describe what you want in natural language.
+| Tool | What it does |
+|------|--------------|
+| `create_video` | Create a narrated video from a script, an idea, or a web page or document. Covers templates (`templateId`) and avatars (`mediaType: "avatar"`). Costs credits. |
+| `create_music_video` | Create a music video from a song or an uploaded track. Costs credits. |
+| `get_video` | Get one video with its status. Poll it after a create call. |
+| `list_videos` | List the videos in your account. |
+| `export_video` | Render a completed video to MP4. Needs a paid plan. |
+| `publish_video` | Publish a completed video to connected channels, now or scheduled. |
+| `list_voices` | List the AI narration voices, with filters. |
+| `get_subscription` | Get your plan and credit balance. |
+| `create_clip` | Generate one standalone AI video clip (1 to 30 seconds, no narration). Costs credits, needs a paid plan. |
+| `download_video` | Get the MP4 download link of an exported video. |
+| `list_channels` | List the social channels connected to your account. |
+| `create_element` | Save a reusable person, product, or place from one reference photo, for `@handle` use in scripts. |
+
+### Generic tools
+
+| Tool | What it does |
+|------|--------------|
+| `search_api` | Finds the right API endpoint for a task. Describe what you want in natural language. Returns the endpoint with parameters and examples. |
+| `api_read` | Sends a GET request to an endpoint from the catalog. Read-only. |
+| `api_write` | Sends a POST, PUT, or PATCH request to an endpoint from the catalog. Some endpoints spend credits. |
+| `api_delete` | Sends a DELETE request to an endpoint from the catalog, for example to delete a video or cancel a scheduled publication. |
+
+The generic tools accept only endpoints listed in the catalog below.
 
 ```
-search_api("create a video about cats")
--> Returns: POST /videos/generate with all parameters and examples
-```
+search_api("make a short clip from a prompt")
+-> Returns: POST /clips with all parameters and examples
 
-### `execute_api`
-
-Calls the AITuber API. Use after `search_api` to know which endpoint and parameters to use.
-
-```
-execute_api(method: "POST", path: "/videos/generate", body: {
-  "script": "5 amazing facts about the deep ocean",
-  "inputType": "idea",
-  "expectedDurationSeconds": 60
+api_write(method: "POST", path: "/clips", body: {
+  "prompt": "a drone shot over a glacier at sunrise",
+  "durationSeconds": 5
 })
--> Returns: { videoId: "abc-123", status: "pending" }
+-> Returns: { clipId: "abc-123", status: "pending" }
 ```
 
 ### Example workflows
@@ -212,7 +229,7 @@ Publishing requires channels to already be connected through the AITuber dashboa
 
 ## Under the hood
 
-The server is a stateless Cloudflare Worker (`src/remote.ts`, source in this repo). It verifies your AITuber sign-in or API key, exposes the `search_api` and `execute_api` tools, and forwards each call to the AITuber API with your own credential. Nothing is stored and there are no server-side sessions. PostHog MCP Analytics records tool names, client details, timing, and success or failure. Tool arguments and responses are removed before analytics events are sent. The endpoint catalog is generated from the API's OpenAPI definition, so the tools always match the live API. Dev and deploy notes: [CONTRIBUTING.md](./CONTRIBUTING.md).
+The server is a stateless Cloudflare Worker (`src/remote.ts`, source in this repo). It verifies your AITuber sign-in or API key, registers the tools above from one shared module (`src/tools.ts`), and forwards each call to the AITuber API with your own credential. Nothing is stored and there are no server-side sessions. PostHog MCP Analytics records tool names, client details, timing, and success or failure. Tool arguments and responses are removed before analytics events are sent. The endpoint catalog is generated from the API's OpenAPI definition, so the tools always match the live API. Dev and deploy notes: [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Links
 
