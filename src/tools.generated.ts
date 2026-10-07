@@ -140,7 +140,7 @@ export const GENERATED_TOOLS: GeneratedTool[] = [
   {
     "name": "create_music_video",
     "title": "Create a music video",
-    "description": "Starts a music video: a song with AI visuals and synced lyric captions. The song comes from one of songPrompt (a new AI song, with optional lyrics), musicId (a song generated earlier), or musicAssetId (an uploaded track). Spends credits and takes several minutes. Returns a pending video id; use get_video to check progress.",
+    "description": "Starts a music video: a song with AI visuals and synced lyric captions. The song comes from musicId (a song made with POST /music, which writes a new song from a prompt or sings lyrics the user wrote) or musicAssetId (a track uploaded with POST /uploads, purpose \"music\"), one of the two. Pick visualMode: ai-images, ai-video, or cover-image. Spends credits and takes several minutes. Returns a pending video id; use get_video to check progress.",
     "capability": "generateMusicVideo",
     "method": "POST",
     "path": "/music-videos",
@@ -470,7 +470,7 @@ export const GENERATED_TOOLS: GeneratedTool[] = [
   {
     "name": "download_video",
     "title": "Get the MP4 download link",
-    "description": "Returns a temporary signed download URL for the MP4 of a completed, exported video. Call export_video first; while the export is still rendering this returns 400 \"not ready\", so wait and retry. The URL expires in 2 minutes.",
+    "description": "Returns a temporary signed download URL for the MP4 of an exported video. Call export_video first. While the export is still rendering this returns 400 \"not ready\": wait and call again. With no export at all it returns 404. The URL expires in 2 minutes.",
     "capability": "downloadVideo",
     "method": "GET",
     "path": "/exports/download",

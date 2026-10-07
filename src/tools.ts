@@ -367,6 +367,9 @@ function childFields(parent: GeneratedParam, params: GeneratedParam[]): string[]
 
 function zodForType(type: string): z.ZodType {
   const lower = type.toLowerCase();
+  // A union such as `integer | "auto"` must accept both sides. The API
+  // validates the exact shape; the tool only has to let the value through.
+  if (lower.includes("|")) return z.union([z.string(), z.number(), z.boolean()]);
   if (lower.startsWith("array")) return z.array(z.unknown());
   if (lower.startsWith("object")) return z.record(z.string(), z.unknown());
   if (lower.startsWith("number") || lower.startsWith("integer")) {
