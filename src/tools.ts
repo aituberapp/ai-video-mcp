@@ -445,13 +445,23 @@ function splitNamedArgs(
  * per-scene prompts, caption config), tens of kilobytes the agent never needs
  * to answer "is it done". The full record stays one api_read call away.
  */
+const GET_VIDEO_INPUT_LIMIT = 2_000;
+
 const RESPONSE_TRIM: Record<string, (body: unknown) => unknown> = {
   get_video: (body) => {
     if (!body || typeof body !== "object" || Array.isArray(body)) return body;
-    const { data, ...rest } = body as Record<string, unknown>;
+    const { data, input, ...rest } = body as Record<string, unknown>;
     const scenes = (data as { images?: unknown[] } | undefined)?.images;
+    // `input` holds the source text, up to 200,000 characters for a video made
+    // from pasted text. It comes before `status` in the record, so a long one
+    // pushed `status` past the response limit and the poll never saw it.
+    const shortInput =
+      typeof input === "string" && input.length > GET_VIDEO_INPUT_LIMIT
+        ? `${input.slice(0, GET_VIDEO_INPUT_LIMIT)}... [cut, ${input.length} characters in total]`
+        : input;
     return {
       ...rest,
+      input: shortInput,
       sceneCount: Array.isArray(scenes) ? scenes.length : undefined,
       note: "Scene data omitted. For the full record call api_read GET /videos/{id}.",
     };
