@@ -176,9 +176,18 @@ function analyticsIdentity(verified: VerifiedToken): UserIdentity | null {
   };
 }
 
-function removeMcpPayloads<T extends {
+/**
+ * Protocol noise, about 165K events a month. Clients send initialize and
+ * tools/list on every connection, and the library sends an $identify with no
+ * person data each time. $mcp_tool_call keeps real usage, per user and org.
+ */
+const DROPPED_MCP_EVENTS = new Set(["$mcp_initialize", "$mcp_tools_list", "$identify"]);
+
+function filterMcpEvent<T extends {
+  event?: string;
   properties?: Record<string, unknown>;
-}>(event: T): T {
+}>(event: T): T | null {
+  if (event.event && DROPPED_MCP_EVENTS.has(event.event)) return null;
   if (event.properties) {
     delete event.properties.$mcp_parameters;
     delete event.properties.$mcp_response;
@@ -296,7 +305,7 @@ function buildMcpServer(
       }),
       // Requests and responses can contain scripts and generated content.
       // Tool usage, errors, latency, clients, and sessions remain available.
-      beforeSend: removeMcpPayloads,
+      beforeSend: filterMcpEvent,
     });
   }
 
