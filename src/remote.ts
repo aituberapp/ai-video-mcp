@@ -319,7 +319,10 @@ function protectedResourceMetadata(request: Request, env: Env): Response {
     resource,
     authorization_servers: [authServer],
     token_types_supported: ["urn:ietf:params:oauth:token-type:access_token"],
-    scopes_supported: ["profile", "email"],
+    // ChatGPT turns on OIDC and asks for "openid". List it here so the client
+    // it registers with Clerk may request it; without it Clerk returns
+    // invalid_scope.
+    scopes_supported: ["openid", "profile", "email"],
     resource_name: "AITuber",
     resource_documentation: "https://aituber.app/mcp",
   };
