@@ -26,7 +26,7 @@ Your browser opens once to sign in and approve access.
 
 ### ChatGPT
 
-Open Settings, go to Connectors, then Advanced, and turn on Developer mode (required for custom connectors). Add a new connector with the URL `https://mcp.aituber.app` and sign in with your AITuber account.
+On ChatGPT on the web, open Plugins, click +, then Add custom MCP server. Name it AITuber, paste `https://mcp.aituber.app` under Connection, choose OAuth, and select Create as a plugin. Install the plugin and sign in with your AITuber account. Developer mode is no longer needed.
 
 ### Cursor
 
