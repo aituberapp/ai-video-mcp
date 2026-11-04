@@ -164,7 +164,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
       {
         "name": "contentType",
         "in": "body",
-        "type": "`image/jpeg` \\| `image/png` \\| `image/webp` \\| `video/mp4` \\| `video/quicktime` \\| `video/webm` \\| `audio/mpeg` \\| `audio/wav` \\| `audio/mp4` \\| `audio/x-m4a` \\| `audio/aac` \\| `audio/mp3` \\| `audio/wave` \\| `audio/x-wav` \\| `audio/ogg` \\| `audio/webm` \\| `application/pdf`",
+        "type": "`image/jpeg` \\| `image/png` \\| `image/webp` \\| `video/mp4` \\| `video/quicktime` \\| `video/webm` \\| `audio/mpeg` \\| `audio/wav` \\| `audio/mp4` \\| `audio/x-m4a` \\| `audio/aac` \\| `audio/mp3` \\| `audio/wave` \\| `audio/x-wav` \\| `audio/ogg` \\| `audio/webm` \\| `application/pdf` \\| `application/vnd.openxmlformats-officedocument.wordprocessingml.document` \\| `application/vnd.openxmlformats-officedocument.presentationml.presentation` \\| `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` \\| `text/plain` \\| `text/markdown` \\| `text/csv`",
         "required": false,
         "description": "The file type for a direct upload. Returns an `uploadUrl` to PUT the bytes to. Must match the purpose (image, video, audio, or document)."
       },
