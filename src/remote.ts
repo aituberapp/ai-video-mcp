@@ -403,10 +403,12 @@ async function handleMcp(
 ): Promise<Response> {
   const request = c.req.raw;
 
-  // A human hitting the endpoint in a browser: send them to the docs page.
+  // A GET that does not ask for the SSE stream is a browser or a crawler, not an
+  // MCP client: send it to the docs page. Crawlers often send no Accept header,
+  // and a 401 here made every backlink to this endpoint look broken.
   if (request.method === "GET") {
     const accept = c.req.header("Accept") ?? "";
-    if (accept.includes("text/html")) {
+    if (!accept.includes("text/event-stream")) {
       return c.redirect(HUMAN_REDIRECT_URL, 302);
     }
   }
