@@ -933,7 +933,7 @@ export const GENERATED_ENDPOINTS: GeneratedEndpoint[] = [
     "method": "DELETE",
     "path": "/videos/{id}",
     "summary": "Delete a video",
-    "description": "Permanently deletes a video and its generated assets. This cannot be undone. Credits spent on generation are not refunded.",
+    "description": "Permanently deletes a video and its generated assets. This cannot be undone. Credits spent on generation are not refunded. A video that is still being made cannot be deleted (409): wait for it to finish first.",
     "auth": true,
     "params": [
       {
