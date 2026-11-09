@@ -763,7 +763,7 @@ export const GENERATED_TOOLS: GeneratedTool[] = [
         "in": "body",
         "type": "boolean",
         "required": false,
-        "description": "Label video as AI-generated on TikTok. Default: false."
+        "description": "Label video as AI-generated on TikTok. Default: true."
       },
       {
         "name": "channels[].instagramPlacement",
